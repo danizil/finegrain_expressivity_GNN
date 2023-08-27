@@ -6,10 +6,13 @@ import torch.nn.functional as F
 import torch_geometric.transforms as T
 from sklearn.model_selection import KFold
 from sklearn.model_selection import train_test_split
-from torch_geometric.data import DataLoader
+from torch_geometric.loader import DataLoader
 from torch_geometric.datasets import TUDataset
 from torch_geometric.utils import degree
+from tqdm import tqdm
 
+
+from auxiliarymethods.danutils import *
 
 class NormalizedDegree(object):
     def __init__(self, mean, std):
@@ -59,7 +62,8 @@ def gnn_evaluation(gnn, ds_name, layers, hidden, max_num_epochs=200, batch_size=
     dataset = TUDataset(path, name=ds_name).shuffle()
 
     # Constant node features
-    if dataset.data.x is None:
+    if dataset[0].x is None:
+        printd('no node features')
         dataset.transform = T.Constant(value=1)
         # max_degree = 0
         # degs = []
@@ -80,18 +84,24 @@ def gnn_evaluation(gnn, ds_name, layers, hidden, max_num_epochs=200, batch_size=
     test_accuracies_all = []
     test_accuracies_complete = []
 
-    for i in range(num_repetitions):
+    printd(f"num_repetitions = {num_repetitions}")
+    for i in tqdm(range(num_repetitions)):
         # Test acc. over all folds.
         test_accuracies = []
         kf = KFold(n_splits=10, shuffle=True, random_state=i)
+        
         #dataset.shuffle()
 
-        for train_index, test_index in kf.split(list(range(len(dataset)))):
-            # Sample 10% split from training split for validation.
+        splits = kf.split(list(range(len(dataset))))
+        for train_index, test_index in tqdm(splits):
+            #! IT LOOKS LIKE CROSS VALIDATION ON TOP OF CROSS VALIDATION. WHY DO WE SPLIT INTO TRAIN,VAL,TEST MULTIPLE TIMES AND NOT ONCE?
+            # Sample 10% split from training split for validation. 
+            #? dan: kf.split() returns an array of 10 splits of the data into (train, test) indices. every time we do the split, we get a new array to iterate on. 
+
             train_index, val_index = train_test_split(train_index, test_size=0.1, random_state=i)
+            #? dan: every time we want to do across validation
             best_val_acc = 0.0
             best_test = 0.0
-
             # Split data.
             train_dataset = dataset[train_index.tolist()]
             val_dataset = dataset[val_index.tolist()]
@@ -106,7 +116,9 @@ def gnn_evaluation(gnn, ds_name, layers, hidden, max_num_epochs=200, batch_size=
             for l in layers:
                 for h in hidden:
                     # Setup model.
+                    #? dan: so we train one model for every l and h
                     model = gnn(dataset, l, h, untrain).to(device)
+                    #? dan: for the untrained networks, the reset_parameters function sets requires_grad = False 
                     model.reset_parameters()
 
                     optimizer = torch.optim.Adam(model.parameters(), lr=start_lr)
@@ -114,16 +126,25 @@ def gnn_evaluation(gnn, ds_name, layers, hidden, max_num_epochs=200, batch_size=
                                                                            factor=factor, patience=patience,
                                                                            min_lr=0.0000001)
                     times = []
-                    for epoch in range(1, max_num_epochs + 1):
+                    printd(f"training epochs")
+                    for epoch in tqdm(range(1, max_num_epochs + 1)):
                         lr = scheduler.optimizer.param_groups[0]['lr']
                         #count training time per epoch
-                        torch.cuda.synchronize() 
+                        
+                        #? Timing the training function
+                        if device.type == 'cuda':
+                            torch.cuda.synchronize() 
                         start_time = time.time()
+                        
                         train(train_loader, model, optimizer, device)
-                        torch.cuda.synchronize()
+                        
+
+                        if device.type == 'cuda':
+                            torch.cuda.synchronize()
                         end_time = time.time()
                         elapsed = end_time - start_time
                         times.append(elapsed)
+                        
 
                         val_acc = test(val_loader, model, device)
                         scheduler.step(val_acc)
@@ -133,9 +154,12 @@ def gnn_evaluation(gnn, ds_name, layers, hidden, max_num_epochs=200, batch_size=
                             best_test = test(test_loader, model, device) * 100.0
 
                         # Break if learning rate is smaller 10**-6.
-                        if lr < min_lr:
-                            break
-                    
+                        if lr < min_lr: 
+                            break           
+                                        
+                    mean_time = np.array(times).mean()
+                    std_time = np.array(times).std()
+                    printd(f"time for training: {mean_time} +- {std_time}")
 
             test_accuracies.append(best_test)
 

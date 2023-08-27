@@ -6,6 +6,8 @@ import argparse
 import numpy as np
 import pickle
 
+from auxiliarymethods.danutils import *
+
 def main(args):
     ### TUDatasets.
     # dataset = [["MUTAG", False]]
@@ -13,12 +15,12 @@ def main(args):
                 ["REDDIT-BINARY", False]]
 
     results = []
+    
     for d, use_labels in dataset:
         # Download dataset.
         dp.get_dataset(d)
 
-        acc, s_1, s_2, time, t_std = gnn_evaluation(GC_meanpool, d, [args.layer], [args.hid_dim], max_num_epochs=200, batch_size=64,
-                                       start_lr=0.01, num_repetitions=args.num_reps, all_std=True, untrain=False)
+        acc, s_1, s_2, time, t_std = gnn_evaluation(GC_meanpool, d, [args.layer], [args.hid_dim], max_num_epochs=200, batch_size=64, start_lr=0.01, num_repetitions=args.num_reps, all_std=True, untrain=False)
 
         print(d + " " + "GraphConv " + str(acc) + " " + str(s_1) + " " + str(s_2) + " " + str(time) + " " + str(t_std))
         results.append(d + " " + "GraphConv " + str(acc) + " " + str(s_1) + " " + str(s_2) + " " + str(time) + " " + str(t_std))
@@ -56,5 +58,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print(args)
+    printd(f"\nargs: {args}\n\n")
     main(args)

@@ -1,0 +1,143 @@
+{
+	// Place your hw4 workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
+	// Placeholders with the same ids are connected.
+	// Example:
+	"pause_execution_print_sht": {
+		"scope": "python",
+		"prefix": "pus",
+		"body": [
+			"input(f'\\nVVVVVVVVVV\\n@$1 \\n^^^^^^^^^^^')"
+		
+		],
+		"description": "Log output to console"
+	},
+
+
+	"printwith line number": {
+		"scope": "python",
+		"prefix": "prtlocation",
+		"body": [
+			"print(filename_n_line_str() + f'$1')"
+		],
+		"description": "Log output to console"
+	},
+
+	"breakprint": {
+		"scope": "python",
+		"prefix": "dbgprt",
+		"body": [
+			"#! DAN:VVVVVVVVVVV breakpoint",
+			"while True:",
+			"    print(filename_n_line_str())",
+			"    inpt = input(f'print stuff \\nVVVVVVVVV \\n')",
+			"    if inpt == 'fin':",
+			"        break",
+			"    try:",
+            "        eval('print(' + inpt + ')')",
+        	"    except Exception as e:",
+            "        print(e)",
+            "        continue",
+			"#! DAN ^^^^^^^^^^^ breakpoint"
+		
+		],
+		"description": "put bre"
+	},
+
+	"breakpoint": {
+		"scope": "python",
+		"prefix": "dbg",
+		"body": [
+			"#!DAN:VVVVVVVVVVV breakpoint",
+			"while True:",
+			"    print(filename_n_line_str())",
+			"    inpt = input(f'debug functions \\nVVVVVVVVV \\n')",
+			"    if inpt == 'fin':",
+			"        break",
+			"    try:",
+            "        eval(inpt)",
+        	"    except Exception as e:",
+            "        print(e)",
+            "        continue",
+			"#!DAN ^^^^^^^^^^^ breakpoint"
+		
+		],
+		"description": "put bre"
+	},
+
+
+	"time_fnc": {
+		"scope": "python",
+		"prefix": "tme",
+		"body": [
+			"#? DAN: VVVtimingVVV",
+			"t = time.time()",
+            "print(filename_n_line_str() + f'timing...')",
+			"print(filename_n_line_str() + f'time: {time.time() - t}')",		
+			"#? DAN: ^^^^timing^^^"
+		],
+		"description": "put bre"
+	},
+	"exit_print_sht": {
+		"scope": "python",
+		"prefix": "ext",
+		"body": [
+			"exit(f'\\nVVVVVVVVVV\\n@$1 \\n^^^^^^^^^^^')"
+		
+		],
+		"description": "Log output to console"
+	},
+	"dan_cmnt": {
+		"scope": "python",
+		"prefix": "dan",
+		"body": [
+			"#DAN: $1"
+		],
+		"description": "Log output to console"
+	},
+	"dan_func_dsc": {
+		"scope": "python",
+		"prefix": "danfnc",
+		"body": [
+			"'''DAN: $1'''"
+		],
+		"description": "Log output to console"
+	},
+
+	"dan_red": {
+		"scope": "python",
+		"prefix": "danred",
+		"body": [
+			"#!DAN: $1"
+		],
+		"description": "Log output to console"
+	},
+	"dan_green": {
+		"scope": "python",
+		"prefix": "dangrn",
+		"body": [
+			"#*DAN: $1"
+		],
+		"description": "Log output to console"
+	},
+
+	"2newLines": {
+		"scope": "python",
+		"prefix": "prt2newlines",
+		"body": [
+			"print('\\n\\n')"
+		],
+		"description": "Log output to console"
+	},
+	"newLine": {
+		"scope": "python",
+		"prefix": "newline",
+		"body": [
+			"print('\\n')"
+		],
+		"description": "Log output to console"
+	},
+}	

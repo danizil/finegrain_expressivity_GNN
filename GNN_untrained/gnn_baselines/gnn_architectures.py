@@ -221,6 +221,7 @@ class GC(torch.nn.Module):
         self.lin2.reset_parameters()
 
         if self.untrain:
+            #? DAN: i think that untrain is because i don't really train the networks
             for param in self.conv1.parameters():
                 param.requires_grad = False
 
@@ -246,6 +247,7 @@ class GC(torch.nn.Module):
         return self.__class__.__name__
 
 class GC_meanpool(torch.nn.Module):
+    #? DAN: this is what we are using. pretty standard stuff, except with the GraphConv instead of what you did.
     def __init__(self, dataset, num_layers, hidden, untrain):
         super(GC_meanpool, self).__init__()
         self.conv1 = GraphConv(dataset.num_features, hidden)
@@ -276,6 +278,7 @@ class GC_meanpool(torch.nn.Module):
         x, edge_index, batch = data.x, data.edge_index, data.batch
         x = self.conv1(x, edge_index)
         inv_graph_size = degree(batch, dtype=x.dtype).pow(-1)
+        #! shouldn't the normalization come before the conv?
         x = x * inv_graph_size.index_select(0, batch).view(-1, 1)
 
         for conv in self.convs:

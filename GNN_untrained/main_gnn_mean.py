@@ -42,7 +42,7 @@ def main(args):
                                        start_lr=0.01, num_repetitions=args.num_reps, all_std=True, untrain=True)
 
         print(d + " " + "GIN " + str(acc) + " " + str(s_1) + " " + str(s_2) + " " + str(time) + " " + str(t_std))
-        results.append(d + " " + "GIN " + str(acc) + " " + str(s_1) + " " + str(s_2) + " " + str(time) + " " + str(t_std))
+        results.append(d + " " + "GIN " + str(acc) + " " + str(s_1) + " " + str(s_2) + " " + str(time) + "P" + str(t_std))
 
 
         file_name = os.path.join(args.result_path, d + "_" + str(args.hid_dim) 
